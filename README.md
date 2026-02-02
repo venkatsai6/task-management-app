@@ -95,7 +95,20 @@ Click the moon/sun icon in the header to toggle between light and dark themes. T
 
 All colors are defined through CSS custom properties, so the theme switch is smooth with transition animations.
 
-### 10. Responsive Design
+### 10. Toast Notifications
+
+After every task action, a notification chip appears at the bottom center of the screen to confirm the operation:
+
+| Action        | Message                    | Color |
+| ------------- | -------------------------- | ----- |
+| Create task   | Task created successfully  | Green |
+| Update task   | Task updated successfully  | Green |
+| Delete task   | Task deleted               | Red   |
+| Status change | Task status updated        | Blue  |
+
+Notifications slide in from the bottom, auto-dismiss after 3 seconds with a fade-out animation, and support both light and dark themes.
+
+### 11. Responsive Design
 
 The app adapts to two layouts based on a **1028px** breakpoint:
 
@@ -109,20 +122,23 @@ The app adapts to two layouts based on a **1028px** breakpoint:
 ```text
 src/
 ├── components/
-│   ├── StatusPicker.tsx    # Custom dropdown with color-coded status options
-│   ├── TaskForm.tsx        # Reusable form for adding and editing tasks
-│   ├── TaskItem.tsx        # Individual task row with status, actions
-│   └── TaskList.tsx        # Accordion-grouped task list by status
+│   ├── DoodleIllustration.tsx # Animated SVG doodle illustration
+│   ├── Notification.tsx       # Toast notification chip component
+│   ├── StatusPicker.tsx       # Custom dropdown with color-coded status options
+│   ├── TaskForm.tsx           # Reusable form for adding and editing tasks
+│   ├── TaskItem.tsx           # Individual task row with status, actions
+│   └── TaskList.tsx           # Accordion-grouped task list by status
 ├── hooks/
-│   ├── useMediaQuery.ts    # Tracks CSS media query matches for responsive layout
-│   ├── useTask.ts          # Task CRUD operations + localStorage + search
-│   └── useTheme.ts         # Dark/light theme toggle with localStorage
+│   ├── useMediaQuery.ts       # Tracks CSS media query matches for responsive layout
+│   ├── useNotification.ts     # Toast notification state with auto-dismiss and fade-out
+│   ├── useTask.ts             # Task CRUD operations + localStorage + search
+│   └── useTheme.ts            # Dark/light theme toggle with localStorage
 ├── styles/
-│   └── App.css             # All styles with CSS variables for theming
-├── App.tsx                 # Root component, layout, view routing
-├── index.css               # Root element sizing
-├── main.tsx                # React entry point
-└── types.ts                # TypeScript type definitions (Task, TaskStatus)
+│   └── App.css                # All styles with CSS variables for theming
+├── App.tsx                    # Root component, layout, view routing
+├── index.css                  # Root element sizing
+├── main.tsx                   # React entry point
+└── types.ts                   # TypeScript type definitions (Task, TaskStatus)
 ```
 
 ---
@@ -136,6 +152,8 @@ src/
 | Vite         | 7.2     | Build tool and dev server                  |
 | Lucide React | 0.563   | Icon library (Pencil, Trash, Check, etc.)  |
 | ESLint       | 9.39    | Code linting with React hooks rules        |
+
+| Inter (Google Fonts) | 4 weights | Typography -- clean, modern sans-serif optimized for screens |
 
 No additional state management library is used. All state is managed with React's built-in `useState` and `useEffect` hooks.
 
@@ -205,6 +223,21 @@ const { tasks, searchQuery, setSearchQuery, addTask, updateTask, deleteTask } = 
 - **Persistence:** Reads from `localStorage` on mount; writes to `localStorage` on every change via `useEffect`.
 - **Search:** Filters tasks by title (case-insensitive) based on `searchQuery`.
 
+### `useNotification` (`src/hooks/useNotification.ts`)
+
+Manages toast notification state with auto-dismiss and fade-out animation.
+
+```ts
+const { notification, fading, showNotification, clearNotification } = useNotification();
+```
+
+- **`notification`** -- the current notification object `{ message, type }` or `null`.
+- **`fading`** -- boolean that turns `true` when the fade-out animation starts.
+- **`showNotification(message, type)`** -- displays a notification. Accepts `'success'`, `'error'`, or `'info'` as the type.
+- **`clearNotification()`** -- dismisses the notification immediately.
+- Auto-dismisses after 3 seconds, with a 400ms fade-out animation before removal.
+- Rapid successive calls reset the timer so only the latest notification is shown.
+
 ### `useTheme` (`src/hooks/useTheme.ts`)
 
 Manages the light/dark theme toggle.
@@ -232,7 +265,7 @@ const isDesktop = useMediaQuery('(min-width: 1028px)');
 
 ## Styling and Theming
 
-All styles live in `src/styles/App.css` using **CSS custom properties** (variables) for theming.
+All styles live in `src/styles/App.css` using **CSS custom properties** (variables) for theming. The app uses **Inter** from Google Fonts (weights 400, 500, 600, 700) as its primary typeface, with system font fallbacks.
 
 ### Light Theme (default)
 
