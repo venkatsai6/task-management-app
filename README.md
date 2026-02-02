@@ -84,7 +84,7 @@ Type in the search bar at the top of the task list to filter tasks by title in r
 
 ### 8. LocalStorage Persistence
 
-All tasks are saved to `localStorage` automatically whenever the task list changes. On page reload, tasks are restored from storage so nothing is lost.
+All tasks are saved to `localStorage` automatically whenever the task list changes. On page reload, tasks are restored from storage so nothing is lost. All storage operations are wrapped in `try/catch` blocks, so the app degrades gracefully in environments where `localStorage` is unavailable (e.g., private browsing, storage quota exceeded).
 
 ### 9. Dark Mode
 
@@ -220,7 +220,7 @@ const { tasks, searchQuery, setSearchQuery, addTask, updateTask, deleteTask } = 
 - **`addTask(title, description)`** -- creates a new task with `Pending` status and a `crypto.randomUUID()` ID.
 - **`updateTask(id, fields)`** -- partially updates a task by ID.
 - **`deleteTask(id)`** -- removes a task by ID.
-- **Persistence:** Reads from `localStorage` on mount; writes to `localStorage` on every change via `useEffect`.
+- **Persistence:** Reads from `localStorage` on mount; writes to `localStorage` on every change via `useEffect`. All storage access is wrapped in `try/catch` to handle unavailable or full storage gracefully.
 - **Search:** Filters tasks by title (case-insensitive) based on `searchQuery`.
 
 ### `useNotification` (`src/hooks/useNotification.ts`)
@@ -246,9 +246,9 @@ Manages the light/dark theme toggle.
 const { theme, toggleTheme } = useTheme();
 ```
 
-- Initializes from `localStorage`, falling back to the system `prefers-color-scheme` preference.
+- Initializes from `localStorage`, falling back to the system `prefers-color-scheme` preference. Storage reads are wrapped in `try/catch` so the fallback is always used when storage is unavailable.
 - Sets `data-theme` attribute on `<html>` so CSS variables switch between light and dark palettes.
-- Persists the choice to `localStorage`.
+- Persists the choice to `localStorage` (silently skipped if storage is unavailable).
 
 ### `useMediaQuery` (`src/hooks/useMediaQuery.ts`)
 

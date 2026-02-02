@@ -4,15 +4,23 @@ import type { Task } from '../types';
 export const useTasks = () => {
     // Initialize from LocalStorage or empty array
     const [tasks, setTasks] = useState<Task[]>(() => {
-        const saved = localStorage.getItem('tasks');
-        return saved ? JSON.parse(saved) : [];
+        try {
+            const saved = localStorage.getItem('tasks');
+            return saved ? JSON.parse(saved) : [];
+        } catch {
+            return [];
+        }
     });
 
     const [searchQuery, setSearchQuery] = useState('');
 
     // Persist to LocalStorage whenever tasks change
     useEffect(() => {
-        localStorage.setItem('tasks', JSON.stringify(tasks));
+        try {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        } catch {
+            // Storage full or unavailable
+        }
     }, [tasks]);
 
     const addTask = (title: string, description: string) => {
