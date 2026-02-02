@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import './styles/App.css';
 import { useTasks } from './hooks/useTask';
 import { useMediaQuery } from './hooks/useMediaQuery';
@@ -22,11 +22,8 @@ function App() {
   const { theme, toggleTheme } = useTheme();
   const { notification, fading, showNotification } = useNotification();
 
-  useEffect(() => {
-    if (isDesktop && view === 'LIST') {
-      setView('ADD');
-    }
-  }, [isDesktop, view]);
+  // On desktop, LIST view doesn't make sense alone -- show ADD instead
+  const effectiveView = (isDesktop && view === 'LIST') ? 'ADD' : view;
 
   const handleEdit = (task: Task) => {
     setEditingTask(task);
@@ -74,7 +71,7 @@ function App() {
       <div className={`responsive-wrapper ${isDesktop ? 'desktop-grid' : ''}`}>
 
         {/* LEFT COLUMN: TASK LIST */}
-        {(isDesktop || view === 'LIST') && (
+        {(isDesktop || effectiveView === 'LIST') && (
           <section className="panel list-panel">
             <header className="app-header">
               <h1 className="header-title">Task Management</h1>
@@ -117,7 +114,7 @@ function App() {
         )}
 
         {/* RIGHT COLUMN: FORM + DOODLE */}
-        {(isDesktop || view !== 'LIST') && (
+        {(isDesktop || effectiveView !== 'LIST') && (
           <div className="right-column">
             <section className="panel form-panel">
               <header className="app-header form-header">
@@ -128,13 +125,13 @@ function App() {
                     </button>
                   )}
                   <h1 className="header-title">
-                    {view === 'EDIT' ? 'Edit Task' : 'Add Task'}
+                    {effectiveView === 'EDIT' ? 'Edit Task' : 'Add Task'}
                   </h1>
                 </div>
               </header>
 
               <div className="panel-body">
-                {view === 'EDIT' && editingTask ? (
+                {effectiveView === 'EDIT' && editingTask ? (
                   <TaskForm
                     mode="edit"
                     task={editingTask}

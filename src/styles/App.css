@@ -477,12 +477,12 @@ body {
 
 .form-actions {
   display: flex;
+  justify-content: flex-end;
   gap: 12px;
   padding-top: 4px;
 }
 
 .btn {
-  flex: 1;
   padding: 12px 24px;
   border: none;
   border-radius: 6px;
