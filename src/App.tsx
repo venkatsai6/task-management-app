@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import './styles/App.css';
 import { useTasks } from './hooks/useTask';
 import { useMediaQuery } from './hooks/useMediaQuery';
+import { useNotification } from './hooks/useNotification';
 import type { Task, TaskStatus } from './types';
 import { Plus, Search, ChevronLeft, Sun, Moon } from 'lucide-react';
 import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm';
 import DoodleIllustration from './components/DoodleIllustration';
+import Notification from './components/Notification';
 import { useTheme } from './hooks/useTheme';
 
 type ViewState = 'LIST' | 'ADD' | 'EDIT';
@@ -18,6 +20,7 @@ function App() {
 
   const isDesktop = useMediaQuery('(min-width: 1028px)');
   const { theme, toggleTheme } = useTheme();
+  const { notification, fading, showNotification } = useNotification();
 
   useEffect(() => {
     if (isDesktop && view === 'LIST') {
@@ -32,6 +35,7 @@ function App() {
 
   const handleDelete = (id: string) => {
     deleteTask(id);
+    showNotification('Task deleted', 'error');
     if (editingTask?.id === id) {
       setEditingTask(null);
       setView(isDesktop ? 'ADD' : 'LIST');
@@ -40,10 +44,12 @@ function App() {
 
   const handleStatusChange = (id: string, status: TaskStatus) => {
     updateTask(id, { status });
+    showNotification('Task status updated', 'info');
   };
 
   const handleAddSubmit = (title: string, description: string) => {
     addTask(title, description);
+    showNotification('Task created successfully', 'success');
     if (!isDesktop) {
       setView('LIST');
     }
@@ -52,6 +58,7 @@ function App() {
   const handleEditSubmit = (title: string, description: string, status?: TaskStatus) => {
     if (editingTask) {
       updateTask(editingTask.id, { title, description, ...(status && { status }) });
+      showNotification('Task updated successfully', 'success');
       setEditingTask(null);
       setView(isDesktop ? 'ADD' : 'LIST');
     }
@@ -70,7 +77,7 @@ function App() {
         {(isDesktop || view === 'LIST') && (
           <section className="panel list-panel">
             <header className="app-header">
-              <h1 className="header-title">TO-DO APP</h1>
+              <h1 className="header-title">Task Management</h1>
               <button
                 className="icon-btn theme-toggle"
                 onClick={toggleTheme}
@@ -148,6 +155,8 @@ function App() {
         )}
 
       </div>
+
+      <Notification notification={notification} fading={fading} />
     </div>
   );
 }
