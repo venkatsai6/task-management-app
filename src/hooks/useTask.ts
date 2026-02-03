@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { Task } from '../types';
+import type { Task, TaskStatus } from '../types';
 
 export const useTasks = () => {
     // Initialize from LocalStorage or empty array
@@ -13,6 +13,7 @@ export const useTasks = () => {
     });
 
     const [searchQuery, setSearchQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState<TaskStatus | 'All'>('All');
 
     // Persist to LocalStorage whenever tasks change
     useEffect(() => {
@@ -44,15 +45,19 @@ export const useTasks = () => {
         setTasks((prev) => prev.filter((task) => task.id !== id));
     };
 
-    // Filter tasks based on search query
-    const filteredTasks = tasks.filter((task) =>
-        task.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // Filter tasks based on search query and status filter
+    const filteredTasks = tasks.filter((task) => {
+        const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesStatus = statusFilter === 'All' || task.status === statusFilter;
+        return matchesSearch && matchesStatus;
+    });
 
     return {
         tasks: filteredTasks,
         searchQuery,
         setSearchQuery,
+        statusFilter,
+        setStatusFilter,
         addTask,
         updateTask,
         deleteTask,

@@ -14,7 +14,7 @@ import { useTheme } from './hooks/useTheme';
 type ViewState = 'LIST' | 'ADD' | 'EDIT';
 
 function App() {
-  const { tasks, searchQuery, setSearchQuery, addTask, updateTask, deleteTask } = useTasks();
+  const { tasks, searchQuery, setSearchQuery, statusFilter, setStatusFilter, addTask, updateTask, deleteTask } = useTasks();
   const [view, setView] = useState<ViewState>('LIST');
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
@@ -95,6 +95,18 @@ function App() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="search-input"
                 />
+              </div>
+
+              <div className="status-filters">
+                {(['All', 'Pending', 'In Progress', 'Completed'] as const).map((status) => (
+                  <button
+                    key={status}
+                    className={`filter-chip${statusFilter === status ? ' filter-chip-active' : ''}`}
+                    onClick={() => setStatusFilter(status)}
+                  >
+                    {status}
+                  </button>
+                ))}
               </div>
 
               <TaskList
